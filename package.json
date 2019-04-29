@@ -4,7 +4,11 @@
   "description": "This Boilerplate is used by Frontmen as a starterkit for applicants to demonstrate their awesome Frontend and JavaScript skills!",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "start": "nodemon index.js",
+    "db:create": "sequelize db:create frontmen_boilerplate_v1 --env=autodetect",
+    "db:seed": "sequelize db:seed:all --env=autodetect",
+    "db:migrate": "sequelize db:migrate --env=autodetect"
   },
   "keywords": [
     "Frontmen",
