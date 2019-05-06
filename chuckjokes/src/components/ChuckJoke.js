@@ -11,14 +11,14 @@ const ChuckJoke = ({ favoriteClicked, joke, isFavorite }) => (
           justify="space-between"
           alignItems="center"
           wrap="nowrap"
-          spacing={ 16 }>
-        <Grid item xs={ 1 } onClick={ favoriteClicked }>
-            <IconButton aria-label="Add to favorites">
+          spacing={ 8 }
+          style={{ margin: 'auto' }}>
+        <Grid item sm={ 1 } xs={ 2 } onClick={ favoriteClicked }>
+            <IconButton aria-label="Add to favorites" color="secondary">
                 { isFavorite ? <Favorite/> : <FavoriteOutlined/> }
             </IconButton>
         </Grid>
-        <Grid item xs={ 11 }>
-            { joke }
+        <Grid item sm={ 11 } xs={ 10 } dangerouslySetInnerHTML={{__html: joke}}>
         </Grid>
     </Grid>
 )
