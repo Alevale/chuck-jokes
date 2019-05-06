@@ -37,6 +37,9 @@ app.use('/cache', caching);
 // Add all the API - Version 1
 app.use('/api/v1', apiV1);
 
+// Serve the statics for the frontent
+app.use('/', express.static('chuckjokes/build'));
+
 // Error Handler
 require('./errorhandler/errorhandler')(app);
 
