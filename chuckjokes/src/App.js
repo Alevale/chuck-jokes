@@ -1,71 +1,204 @@
 import React from 'react'
 import chuck from './chuck.jpg'
-import './App.css'
-
-
 import PropTypes from 'prop-types'
 import {withStyles} from '@material-ui/core/styles'
+import uniqBy from 'lodash/uniqBy'
+
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
-import Typography from '@material-ui/core/Typography'
+import Switch from '@material-ui/core/Switch'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import Favorite from '@material-ui/icons/Favorite'
-import FavoriteOutlined from '@material-ui/icons/FavoriteBorder'
 import Grid from '@material-ui/core/Grid'
 
-import ChuckJoke from './components/ChuckJoke'
+import './App.css'
 
+import ChuckJoke from './components/ChuckJoke'
+import Header from './components/Header'
+import Pagination from './components/Pagination'
+
+const saveTokenLocally = (token) => {
+    if (!token) {
+        throw new Error('Missing token')
+    }
+    localStorage.setItem('CHUCK_JOKE_token', token)
+}
+
+const getTokenLocally = () => {
+    return localStorage.getItem('CHUCK_JOKE_token')
+}
+
+const parseRequest = (res) => {
+    if (res.status >= 400 && res.status < 600) {
+        throw new Error('Bad response from server')
+    }
+    return res.json()
+}
+
+const login = (username, password) => {
+    if (!username || !password) {
+        throw new Error('Missing username or password')
+    }
+
+    const url = 'http://localhost:3000/login'
+
+    return fetch(url, {
+        method: 'POST',
+        body: JSON.stringify({
+            username,
+            password
+        }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(parseRequest)
+      .then(response => {
+          return response
+      })
+      .catch(error => {
+          console.error('Error:', error)
+          return Promise.reject(error)
+      })
+}
+
+const setUserCache = (token, state) => {
+    if (token) {
+        const url = 'http://localhost:3000/cache/set'
+
+        fetch(url, {
+            method: 'POST',
+            body: JSON.stringify(state),
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+    }
+}
+
+const getUserCache = (token) => {
+    if (token) {
+        return fetch('http://localhost:3000/cache/get', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(result => result.json())
+            .then(items => {
+                return items
+            })
+    }
+}
+
+const getProfile = (token) => {
+    if (token) {
+        return fetch('http://localhost:3000/api/v1/users/myprofile', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(result => result.json())
+            .then(res => {
+                return res
+            })
+    }
+}
 
 const styles = theme => ({
     root: {
         width: '80%',
-        margin: '20px auto'
+        margin: '75px auto'
     },
-    picture: {
-        maxWidth: '80%',
-        margin: '20px auto'
+    grow: {
+        flexGrow: 1,
     },
     secondaryHeading: {
         color: theme.palette.text.secondary
     }
 })
 
-class ControlledExpansionPanels extends React.Component {
+class App extends React.Component {
+
+    componentDidUpdate() {
+        this.saveStateInServer()
+    }
+
+    componentDidMount() {
+        const token = getTokenLocally()
+        if (token) {
+            this.buildFavoritesListFromServer(token)
+            this.getUser(token)
+        }
+        fetch('http://localhost:3000/api/v1/jokes/random/10')
+            .then(result => result.json())
+            .then(items => {
+                this.setState({
+                    jokes: items.data.value,
+                    loading: false
+                })
+            })
+    }
+
     state = {
+        appUser: {},
         expanded: ['panel1', 'panel2'],
-        jokes: [
-            {
-                'id': 292,
-                'joke': 'If you were somehow able to land a punch on Chuck Norris your entire arm would shatter upon impact. This is only in theory, since, come on, who in their right mind would try this?',
-                'categories': []
-            },
-            {
-                'id': 453,
-                'joke': 'Chuck Norris doesn\'t need garbage collection because he doesn\'t call .Dispose(), he calls .DropKick().',
-                'categories': [
-                    'nerdy'
-                ]
-            },
-            {
-                "id": 259,
-                "joke": "When Chuck Norris does division, there are no remainders.",
-                "categories": []
-            },
-            {
-                "id": 586,
-                "joke": "Chuck Norris already went to Moon and Mars, that's why there are no signs of life.",
-                "categories": []
-            },
-            {
-                "id": 456,
-                "joke": "All browsers support the hex definitions #chuck and #norris for the colors black and blue.",
-                "categories": [
-                    "nerdy"
-                ]
-            }
-        ],
-        favoriteJokes: []
+        jokes: [],
+        token: undefined,
+        loading: true,
+        finishLoading: false,
+        favoriteJokes: [],
+        page: 0,
+    }
+
+    buildFavoritesListFromServer = (token) => {
+        return getUserCache(token)
+            .then((items) => {
+                if (items.result && items.result.favoriteJokes) {
+                    // NOTE: Do this so that if there were favoriteJokes they are all added 20190506:Alevale
+                    const favs = this.state.favoriteJokes.concat(items.result.favoriteJokes)
+                    this.setState({
+                        favoriteJokes: uniqBy(favs, 'id'),
+                        finishLoading: true
+                    })
+                } else {
+                    this.setState({
+                        finishLoading: true
+                    })
+                }
+            })
+    }
+
+    getUser = (token) => {
+        return getProfile(token)
+            .then((res) => {
+                this.setState({
+                    appUser: res.user
+                })
+            })
+    }
+
+    saveStateInServer = () => {
+        const { finishLoading } = this.state
+        if (finishLoading) {
+            const token = getTokenLocally()
+            setUserCache(token, this.state)
+        }
+    }
+
+    loginUser = (username, password) => {
+        return login(username, password)
+            .then((res) => {
+                saveTokenLocally(res.token)
+                this.setState({
+                    appUser: res.user
+                })
+                this.buildFavoritesListFromServer(res.token)
+            })
+            .catch((err) => {
+                this.setState({
+                    loginFailed: true
+                })
+            })
     }
 
     togglePanels = panel => () => {
@@ -79,90 +212,153 @@ class ControlledExpansionPanels extends React.Component {
         const { jokes, favoriteJokes } = this.state
         this.setState({
             jokes: jokes.filter((j) => j.id !== joke.id),
-            favoriteJokes: favoriteJokes.concat(joke)
+            favoriteJokes: uniqBy(favoriteJokes.concat(joke), 'id')
         })
     }
 
     removeFromFavorites = (joke) => () => {
         const { jokes, favoriteJokes } = this.state
         this.setState({
-            favoriteJokes: favoriteJokes.filter((j) => j.id !== joke.id),
-            jokes: jokes.concat(joke)
+            favoriteJokes: uniqBy(favoriteJokes.filter((j) => j.id !== joke.id), 'id'),
+            jokes: uniqBy(jokes.concat(joke), 'id')
         })
+    }
+
+    add1RandomJoke = () => {
+        return fetch('http://localhost:3000/api/v1/jokes/random/1')
+            .then(result => result.json())
+            .then(items => {
+                const { favoriteJokes } = this.state
+                this.setState({
+                    favoriteJokes: uniqBy(favoriteJokes.concat(items.data.value[0]), 'id')
+                })
+            })
+    }
+
+    addJokesOnInterval = () => {
+        const { interval } = this.state
+        if (!interval) {
+            this.add1RandomJoke()
+            const tempInterval = setInterval(() => {
+                const { favoriteJokes, interval } = this.state
+                if (favoriteJokes.length < 10) {
+                    this.add1RandomJoke()
+                } else {
+                    clearInterval(interval)
+                }
+            }, 5000)
+            this.setState({
+                interval: tempInterval
+            })
+            // NOTE: If there was already an interval remove it so it stops adding jokes 20190502:Alevale
+        } else {
+            clearInterval(interval)
+            this.setState({
+                interval: undefined
+            })
+        }
     }
 
     render() {
         const { classes } = this.props
-        const { expanded, jokes, favoriteJokes } = this.state
+        const { expanded, jokes, favoriteJokes, loading, page, appUser } = this.state
         return (
-            <Grid container
-                  direction="row"
-                  justify="space-around"
-                  alignItems="center"
-                  spacing={ 24 }
-                  className={ classes.root }>
-                <div>
-                    { /*<img src={ chuck } className={ classes.picture } alt="chuck" />*/ }
-                    <ExpansionPanel expanded={ expanded.includes('panel1') } onChange={ this.togglePanels('panel1') }>
-                        <ExpansionPanelSummary expandIcon={ <ExpandMoreIcon/> }>
-                            <Grid item xs={ 4 }>
-                                Random
-                            </Grid>
-                            <Grid item className={ classes.secondaryHeading } xs={ 8 }>
-                                List of random jokes about chuck
-                            </Grid>
-                        </ExpansionPanelSummary>
-                        <ExpansionPanelDetails>
+            <div>
+                <Header appUser={appUser} logIn={ this.loginUser } />
+                <Grid container
+                      direction="row"
+                      justify="space-around"
+                      alignItems="center"
+                      spacing={ 24 }
+                      className={ classes.root }>
+                    { loading ?
+                        <img src={ chuck } className='spinner' alt="chuck"/>
+                        :
+                        <div>
                             <Grid container
                                   direction="column"
                                   justify="space-between"
                                   alignItems="center"
                                   wrap="nowrap"
-                                  spacing={ 16 }>
-                                { jokes.map(joke => (
-                                    <ChuckJoke joke={ joke.joke } isFavorite={ false }
-                                               favoriteClicked={ this.addToFavorites(joke) }/>
-                                )) }
-                            </Grid>
-                        </ExpansionPanelDetails>
-                    </ExpansionPanel>
-                    <ExpansionPanel expanded={ expanded.includes('panel2') } onChange={ this.togglePanels('panel2') }>
-                        <ExpansionPanelSummary expandIcon={ <ExpandMoreIcon/> }>
-                            <Grid item xs={ 4 }>
-                                Favorite
-                            </Grid>
-                            <Grid item className={ classes.secondaryHeading } xs={ 8 }>
-                                Save here your favorite quotes
-                            </Grid>
-                        </ExpansionPanelSummary>
-                        <ExpansionPanelDetails>
-                            <Grid container
-                                  direction="column"
-                                  justify="space-between"
-                                  alignItems="center"
-                                  wrap="nowrap"
-                                  spacing={ 16 }>
-                            { favoriteJokes.length < 1 ?
+                                  spacing={ 8 }>
                                 <Grid item xs={ 12 }>
-                                    Seems like you don't have any favorite joke, mark some in the random tab, or add some random one
+                                    Add a joke every 5 seconds until you have 10
+                                    <Switch onChange={ this.addJokesOnInterval }
+                                            disabled={ favoriteJokes.length >= 10 }/>
                                 </Grid>
-                                :
-                                favoriteJokes.map(joke => (
-                                    <ChuckJoke joke={ joke.joke } isFavorite={ true }
-                                               favoriteClicked={ this.removeFromFavorites(joke) }/>
-                                ))
-                            }
                             </Grid>
-                        </ExpansionPanelDetails>
-                    </ExpansionPanel>
-                </div>
-            </Grid>
+                            <ExpansionPanel expanded={ expanded.includes('panel1') }
+                                            onChange={ this.togglePanels('panel1') }>
+                                <ExpansionPanelSummary expandIcon={ <ExpandMoreIcon/> }>
+                                    <Grid item xs={ 4 }>
+                                        Random jokes
+                                    </Grid>
+                                    <Grid item className={ classes.secondaryHeading } xs={ 8 }>
+                                        List of random jokes about Chuck Norris
+                                    </Grid>
+                                </ExpansionPanelSummary>
+                                <ExpansionPanelDetails>
+                                    <Grid container
+                                          direction="column"
+                                          justify="space-between"
+                                          alignItems="center"
+                                          wrap="nowrap"
+                                          spacing={ 8 }>
+                                        {
+                                            jokes.map(joke => (
+                                                <ChuckJoke joke={ joke.joke } isFavorite={ false } key={ joke.id }
+                                                           favoriteClicked={ this.addToFavorites(joke) }/>
+                                            ))
+                                        }
+                                    </Grid>
+                                </ExpansionPanelDetails>
+                            </ExpansionPanel>
+                            <ExpansionPanel expanded={ expanded.includes('panel2') }
+                                            onChange={ this.togglePanels('panel2') }>
+                                <ExpansionPanelSummary expandIcon={ <ExpandMoreIcon/> }>
+                                    <Grid item xs={ 4 }>
+                                        Favorite jokes
+                                    </Grid>
+                                    <Grid item className={ classes.secondaryHeading } xs={ 8 }>
+                                        Here you have your favorite jokes
+                                    </Grid>
+                                </ExpansionPanelSummary>
+                                <ExpansionPanelDetails>
+                                    <Grid container
+                                          direction="column"
+                                          wrap="nowrap"
+                                          spacing={ 8 }>
+                                        {
+                                            favoriteJokes.length < 1 ?
+                                                <Grid item xs={ 12 }>
+                                                    Seems like you don't have any favorite joke, mark some in the random
+                                                    tab, or
+                                                    add some random ones
+                                                </Grid>
+                                                :
+                                                favoriteJokes.slice(page * 10, ((page + 1) * 10)).map(joke => (
+                                                    <ChuckJoke joke={ joke.joke } isFavorite={ true } key={ joke.id }
+                                                               favoriteClicked={ this.removeFromFavorites(joke) }/>
+                                                ))
+                                        }
+                                        <Pagination pageUp={ () => {
+                                            this.setState({ page: (page + 1) })
+                                        } } pageDown={ () => {
+                                            this.setState({ page: (page - 1) })
+                                        } } page={ page } favoriteJokes={ favoriteJokes }/>
+                                    </Grid>
+                                </ExpansionPanelDetails>
+                            </ExpansionPanel>
+                        </div>
+                    }
+                </Grid>
+            </div>
         )
     }
 }
 
-ControlledExpansionPanels.propTypes = {
+App.propTypes = {
     classes: PropTypes.object.isRequired
 }
 
-export default withStyles(styles)(ControlledExpansionPanels)
+export default withStyles(styles)(App)
