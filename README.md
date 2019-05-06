@@ -14,6 +14,11 @@ Released Febuary 2nd, 2018*
 ## Install Guide
 To get this Boilerplate up & running you need to have some components installed first.
 
+## Run Guide
+To get this up and running, after meeting the requirements on dependencies, run the following commands from a terminal browser each
+- Go to the frontend directory and run the watch command `cd chuckjokes && npm run watch`
+- Start the server `npm start`
+
 ### Dependencies
 1. NodeJS (preferably the version recommended for most users)
 1. MySQL (e.g. via a package like XAMPP or WAMP or you can use Docker - https://dzone.com/articles/docker-for-mac-mysql-setup)
