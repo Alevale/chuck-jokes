@@ -1,0 +1,9 @@
+{"level":"info","message":"Admin User Created. Email: niek.heezemans@frontmen.nl - Username: admin","timestamp":"13:25:34"}
+{"level":"info","message":"Admin Role ID Created","timestamp":"13:25:35"}
+{"level":"info","message":"Admin Branch ID Created","timestamp":"13:25:35"}
+{"level":"warn","message":"Login: Username or Email your_username or your_email tried to login but does not exist","timestamp":"13:42:45"}
+{"level":"info","message":"Login: niek.heezemans@frontmen.nl logged in","timestamp":"13:43:22"}
+{"level":"info","message":"Login: niek.heezemans@frontmen.nl logged in","timestamp":"13:43:36"}
+{"level":"info","message":"Login: niek.heezemans@frontmen.nl logged in","timestamp":"13:43:51"}
+{"level":"info","message":"Login: niek.heezemans@frontmen.nl logged in","timestamp":"13:43:52"}
+{"level":"info","message":"Login: niek.heezemans@frontmen.nl logged in","timestamp":"13:43:53"}
