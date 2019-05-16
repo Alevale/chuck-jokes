@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Joke Service fetches 10 jokes by default 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      "http://localhost:3000/api/v1/jokes/random/10",
+    ],
+  ],
+  "results": Array [
+    Object {
+      "type": "return",
+      "value": Promise {},
+    },
+  ],
+}
+`;
+
+exports[`Joke Service fetches 10 jokes by default 2`] = `Promise {}`;
+
+exports[`Joke Service fetches an unlimited amount of jokes 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      "http://localhost:3000/api/v1/jokes/random/999",
+    ],
+  ],
+  "results": Array [
+    Object {
+      "type": "return",
+      "value": Promise {},
+    },
+  ],
+}
+`;
+
+exports[`Joke Service fetches an unlimited amount of jokes 2`] = `Promise {}`;
+
+exports[`Joke Service fetches data from the server and converts it to json 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      "http://localhost:3000/api/v1/jokes/random/3",
+    ],
+  ],
+  "results": Array [
+    Object {
+      "type": "return",
+      "value": Promise {},
+    },
+  ],
+}
+`;
+
+exports[`Joke Service fetches data from the server and converts it to json 2`] = `Promise {}`;
