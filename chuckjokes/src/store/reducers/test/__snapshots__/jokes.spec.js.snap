@@ -1,0 +1,108 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Joke Reducer adds a favorite joke 1`] = `
+Object {
+  "favoriteJokes": Array [
+    Object {
+      "categories": Array [],
+      "id": 416,
+      "joke": "Chuck Norris plays racquetball with a waffle iron and a bowling ball.",
+    },
+  ],
+  "jokes": Array [],
+}
+`;
+
+exports[`Joke Reducer adds a joke to the favorite list and removes it from the jokes list 1`] = `
+Object {
+  "favoriteJokes": Array [
+    Object {
+      "categories": Array [],
+      "id": 416,
+      "joke": "Chuck Norris plays racquetball with a waffle iron and a bowling ball.",
+    },
+  ],
+  "jokes": Array [],
+}
+`;
+
+exports[`Joke Reducer merges the local favorites with the user cached favorites 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      Object {
+        "payload": Array [
+          Object {
+            "categories": Array [],
+            "id": 416,
+            "joke": "Chuck Norris plays racquetball with a waffle iron and a bowling ball.",
+          },
+          Object {
+            "categories": Array [],
+            "id": 33,
+            "joke": "This is the 2 joke",
+          },
+        ],
+        "type": "REPLACE_FAVORITE_JOKE",
+      },
+    ],
+  ],
+  "results": Array [
+    Object {
+      "type": "return",
+      "value": undefined,
+    },
+  ],
+}
+`;
+
+exports[`Joke Reducer merges the local favorites with the user cached favorites 2`] = `undefined`;
+
+exports[`Joke Reducer merges the local favorites with the user cached favorites but does not create duplicates 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      Object {
+        "payload": Array [
+          Object {
+            "categories": Array [],
+            "id": 416,
+            "joke": "Chuck Norris plays racquetball with a waffle iron and a bowling ball.",
+          },
+        ],
+        "type": "REPLACE_FAVORITE_JOKE",
+      },
+    ],
+  ],
+  "results": Array [
+    Object {
+      "type": "return",
+      "value": undefined,
+    },
+  ],
+}
+`;
+
+exports[`Joke Reducer merges the local favorites with the user cached favorites but does not create duplicates 2`] = `undefined`;
+
+exports[`Joke Reducer removes a panel when made to be toggled 1`] = `
+Object {
+  "expanded": Array [
+    "panel2",
+  ],
+}
+`;
+
+exports[`Joke Reducer returns an initial state when passed undefined 1`] = `
+Object {
+  "expanded": Array [
+    "panel1",
+    "panel2",
+  ],
+  "favoriteJokes": Array [],
+  "intervalActive": undefined,
+  "jokes": Array [],
+  "loading": true,
+  "page": 0,
+}
+`;

@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`User Reducer it calls the login function and initiaties the application 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      Object {
+        "payload": "token",
+        "type": "SET_TOKEN_LOCALSTORAGE",
+      },
+    ],
+    Array [
+      Object {
+        "payload": "user",
+        "type": "LOGIN",
+      },
+    ],
+    Array [
+      [Function],
+    ],
+    Array [
+      Object {
+        "type": "LOGIN_OK",
+      },
+    ],
+  ],
+  "results": Array [
+    Object {
+      "type": "return",
+      "value": undefined,
+    },
+    Object {
+      "type": "return",
+      "value": undefined,
+    },
+    Object {
+      "type": "return",
+      "value": undefined,
+    },
+    Object {
+      "type": "return",
+      "value": undefined,
+    },
+  ],
+}
+`;
+
+exports[`User Reducer returns an initial state when passed undefined 1`] = `
+Object {
+  "appUser": Object {},
+  "finishLoading": false,
+  "loading": true,
+  "loginFailed": false,
+  "token": undefined,
+}
+`;
