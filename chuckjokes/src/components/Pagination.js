@@ -1,9 +1,12 @@
 import React from 'react'
+import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
 import ChevronRight from '@material-ui/icons/ChevronRight'
 import ChevronLeft from '@material-ui/icons/ChevronLeft'
+
+import {pageUp, pageDown} from '../store/reducers/jokes'
 
 const Pagination = ({ page, favoriteJokes, pageUp, pageDown }) => (
     <Grid item xs={ 12 }>
@@ -38,4 +41,8 @@ Pagination.propTypes = {
     pageDown: PropTypes.func.isRequired
 }
 
-export default Pagination
+export default connect(
+    (state) => ({page: state.joke.page, favoriteJokes: state.joke.favoriteJokes}),
+    {pageUp, pageDown}
+)(Pagination)
+
