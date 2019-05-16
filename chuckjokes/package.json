@@ -5,6 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^3.9.3",
     "@material-ui/icons": "^3.0.2",
+    "he": "^1.2.0",
     "lodash": "^4.17.11",
     "puppeteer": "^1.16.0",
     "react": "^16.8.6",
